@@ -1,9 +1,25 @@
-#library(tidyverse)
-#library(shiny)
-#library(shinydashboard)
-#library(DESeq2)
+suppressMessages(library(tidyverse))
+suppressMessages(library(shiny))
+suppressMessages(library(shinydashboard))
+suppressMessages(library(data.table))
+suppressMessages(library(scales))
+suppressMessages(library(ggplot2))
+suppressMessages(library(edgeR))
+suppressMessages(library(DESeq2))
+suppressMessages(library(limma))
+suppressMessages(library(ggsci))
 
-load("E:/OneDrive/Desktop/DM.R1/v5/.diffan.RData")
+source("src/predata_diffanalysis.R")
+source("src/LZ_plot.valcano.R")
+## a <- read.csv("data/example/example.annot.csv") 
+## b <- fread("data/example/example.RNAseq.csv", data.table = F)
+## c <- read.csv("data\\example\\example.group.csv", row.names = 1,
+##  stringsAsFactors = T)
+## eset <- Xena.process(df = b, annot = a)
+## eset.group <- list(eset=eset, group=c, f_mark="luad.mRNA")
+## diffan <- DEG.edgeR(eset.group, pval = 0.05, fdr = 0.1, logfc = 1)
+## resdf = diffan$resdf
+## DEGplot.volcano(df_valcano)
 
 ui <- dashboardPage(
   # skin = "black",
@@ -23,28 +39,33 @@ ui <- dashboardPage(
       # First tab content
       tabItem(tabName = "t1",
               fluidRow(
-                column(10,
-                box(
+                column(12,
+                box(width = 3,
                     fileInput("file_eset", "Upload Eset File (CSV)", accept = c(".csv"), multiple = F),
                     fileInput("file_group", "Upload Group File (CSV)", accept = c(".csv"), multiple = F),
-                    selectInput("pval", "pvalue", c(0.0001, 0.001, 0.01, 0.05, 1), selected=0.05),
-                    selectInput("fdr", "FDR", c(0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 1), selected=0.1),
-                    sliderInput("logfc", "log2FC", 0, 5, 1),
+                    fileInput("file_annot", "Upload Annot File (CSV)", accept = c(".csv"), multiple = F),
+                    selectInput("pval", "pvalue", c(0.0001, 0.001, 0.01, 0.05,0.1,0.3,0.5,0.7, 1), selected=0.05),
+                    selectInput("fdr", "FDR", c(0.0001, 0.001, 0.01, 0.05, 0.1, 0.2,0.3,0.5,0.7, 1), selected=0.1),
+                    sliderInput("logfc", "log2FC", 0, 5, 0.1),
                     actionButton("btn", "Analyze")
                 ),
-                box(
+                box(width = 9,
                   plotOutput("volcano_plot"),
                   br(),
                   textOutput('deg_nrow') # tableOutput("table")
                 )
               )),
               fluidRow(
-                column(10,
-                box(
-                ),
-                box(
+                column(9,
+                box(width = 3,
                   tableOutput("table_eset")
-                )
+                ),
+                box(width = 3,
+                  tableOutput("table_group")
+                ),
+                box(width = 3,
+                  tableOutput("table_annot")
+                ),
               )),
       ),
     # Second tab content
@@ -83,47 +104,86 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
-  readfile_csv <- reactive({
-    read.csv(input$file_eset$datapath, header = TRUE, stringsAsFactors = FALSE)
+  options(shiny.maxRequestSize=1000*1024^2)
+  label_gene <- c("S100P","PDIA2","PRB3"," KLK14","SCGB3A2","ZACN") 
+  input_value <- reactiveValues(pval=0.05, fdr=0.1,logfc=1)
+  
+  readannot_csv <- reactive({
+    read.csv(input$file_annot$datapath) 
+  })
+  readeset_csv <- reactive({
+    fread(input$file_eset$datapath, data.table = F)
+  })
+  readgroup_csv <- reactive({
+    read.csv(input$file_group$datapath, row.names = 1, stringsAsFactors = T)
   })
 
-  input_value <- reactiveValues(pval=1, fdr=1,logfc=1)
+  diffan_edger <- reactive({
+    eset <- Xena.process(df = readeset_csv(), annot = readannot_csv())
+    eset.group <- list(eset=eset, group=readgroup_csv(), f_mark="luad.mRNA")
+    diffan <- DEG.edgeR(eset.group, pval = 0.05, fdr = 0.1, logfc = 1)
+    # save(diffan, file = "diffan.RData", compress = T)
+    return(diffan)
+  })
 
   output$table_eset <- renderTable({
-    if(is.null(input$file_eset))
+    if(is.null(input$file_eset)&is.null(input$file_annot))
       return(NULL)
     else{
-      df <- readfile_csv()
-      df_sub <- df[1:5, 1:5]
+      df <- readeset_csv()
+      df_sub <- df[1:3, 1:3]
       return(df_sub)
     }
   })
+  output$table_group <- renderTable({
+    if(is.null(input$file_eset)&is.null(input$file_annot))
+      return(NULL)
+    else{
+      df <- readgroup_csv()
+      df_sub <- df[1:3, 1:2]
+      return(df_sub)
+    }
+  })
+  output$table_annot <- renderTable({
+    if(is.null(input$file_eset)&is.null(input$file_annot))
+      return(NULL)
+    else{
+      df <- readannot_csv()
+      df_sub <- df[1:3, 1:2]
+      return(df_sub)
+    }
+  })
+
+
 
   observeEvent(input$btn, {
     input_value$pval = input$pval %>% as.numeric()
     input_value$fdr = input$fdr %>% as.numeric()
     input_value$logfc = input$logfc %>% as.numeric()
     
-    res_df <- diffan$resdf
-    deg <- res_df %>% filter(pvalue < input_value$pval & padj < input_value$fdr & 
-                               abs(log2FoldChange) > input_value$logfc)
-    
+    # 火山图
+    resdf <- diffan_edger()
+    df_valcano <- resdf$resdf %>% distinct(Gene, .keep_all = T) %>% 
+                     dplyr::select(Gene, log2FC, PValue, FDR) %>% 
+                     dplyr::rename(log2FoldChange=log2FC, padj=FDR) %>% 
+                     na.omit()
     output$volcano_plot <- renderPlot({
-        ggplot(res_df, aes(x = log2FoldChange, y = -log10(pvalue))) + 
-          geom_point() + 
-          xlab("Log2 Fold Change") + ylab("-log10(p-value)") + 
-          ggtitle("Volcano Plot") +
-          geom_vline(xintercept = c(-input_value$logfc, input_value$logfc), 
-                     linetype = "dashed") + 
-          geom_hline(yintercept = -log10(input_value$pval), linetype = "dashed")
+        DEGplot.volcano(result = df_valcano, logFC = input_value$logfc, 
+                       adj_P = input_value$pval, 
+                       label_geneset = intersect(label_gene, df_valcano$Gene)) %>% 
+                       ggplotGrob() %>% cowplot::plot_grid() 
     })
 
+    # 差异基因
+    newdeg <- resdf$resdf %>% filter(abs(log2FC) > input_value$logfc & 
+                                     PValue < input_value$pval & 
+                                     FDR < input_value$fdr)
     output$deg_nrow <- renderText({
-      # st()
-      paste0("pval=",  input_value$pval, 
-             "FDR=",  input_value$fdr, 
-             "Log2FC=",  input_value$logfc, 
-             ": ", nrow(deg) )
+      paste0("pval= ",  input_value$pval, "\n",
+          "FDR= ",  input_value$fdr, "\n",
+          "Log2FC= ",  input_value$logfc, "\n",
+          "DEG numbers: ", nrow(newdeg)
+          )
     })
     
     })
