@@ -39,6 +39,7 @@ counterServer <- function(id) {
     id,
     function(input, output, session) {
       options(shiny.maxRequestSize=1000*1024^2)
+      options(shiny.useragg = FALSE)
       label_gene <- c("S100P","PDIA2","PRB3"," KLK14","SCGB3A2","ZACN") 
       input_value <- reactiveValues(pval=0.05, fdr=0.1,logfc=1,marker=label_gene)
       
