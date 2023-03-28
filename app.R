@@ -36,7 +36,7 @@ ui <- dashboardPage(
     tabItems(
       tabItem(tabName = "t_demo",
               uiOutput(outputId = "ui_demo")
-      )
+      ),
       tabItem(tabName = "t0",
               h2("仅管理员可用")
       ),
@@ -65,6 +65,7 @@ server <- function(input, output, session) {
   output$ui_demo <- renderUI({
     ui_t_demo("demo")
   })
+  server_t_demo("demo")
   # t_diff
   output$ui_diff <- renderUI({
     ui_t_diff("diff")
