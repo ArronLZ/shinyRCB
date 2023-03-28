@@ -11,8 +11,8 @@ suppressMessages(library(ggsci))
 
 source("src/predata_diffanalysis.R")
 source("src/LZ_plot.valcano.R")
-source("src/model_t_diff.R")
-source("src/model_t_hualiao.R")
+source("modules/model_t_diff.R")
+source("modules/model_t_hualiao.R")
 
 ui <- dashboardPage(
   # skin = "black",
