@@ -13,12 +13,14 @@ source("src/predata_diffanalysis.R")
 source("src/LZ_plot.valcano.R")
 source("modules/model_t_diff.R")
 source("modules/model_t_hualiao.R")
+source("modules/model_t_demo.R")
 
 ui <- dashboardPage(
   # skin = "black",
   dashboardHeader(title = "Refined Cell Biotech SMU"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("操作说明", tabName = "t_demo", icon = icon("th")),
       menuItem("差异分析", tabName ="t_diff" , icon = icon("th")),
       menuItem("富集分析", tabName ="t_pathway" , icon = icon("th")),
       menuItem("生存分析", tabName ="t_surv" , icon = icon("th")),#icon("dashboard")
@@ -32,12 +34,14 @@ ui <- dashboardPage(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
     ),
     tabItems(
+      tabItem(tabName = "t_demo",
+              uiOutput(outputId = "ui_demo")
+      )
       tabItem(tabName = "t0",
               h2("仅管理员可用")
       ),
-      # First tab content
       tabItem(tabName = "t_diff",
-              uiOutput(outputId = "ui_t_diff")
+              uiOutput(outputId = "ui_diff")
       ),
       tabItem(tabName = "t_pathway",
               h2("即将上线")
@@ -47,7 +51,7 @@ ui <- dashboardPage(
       ),
       # Second tab content
       tabItem(tabName = "t_hualiao",
-              uiOutput(outputId = "ui_t_hualiao")
+              uiOutput(outputId = "ui_hualiao")
       ),
       tabItem(tabName = "t_help",
               h2("敬请期待")
@@ -57,12 +61,17 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session) {
-  output$ui_t_diff <- renderUI({
+  # t_demo
+  output$ui_demo <- renderUI({
+    ui_t_demo("demo")
+  })
+  # t_diff
+  output$ui_diff <- renderUI({
     ui_t_diff("diff")
   })
   server_t_diff("diff")
-  ###
-  output$ui_t_hualiao <- renderUI({
+  # t_hualiao
+  output$ui_hualiao <- renderUI({
     ui_t_hualiao("hualiao")
   })
   server_t_hualiao("hualiao")
