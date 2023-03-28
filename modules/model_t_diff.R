@@ -1,6 +1,6 @@
 p.range <- c(0.0001, 0.001, 0.01, 0.05, seq(0.1, 1, 0.1))
 
-counterButton <- function(id) {
+ui_t_diff <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -34,13 +34,13 @@ counterButton <- function(id) {
   )
 }
 
-counterServer <- function(id) {
+server_t_diff <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
       options(shiny.maxRequestSize=1000*1024^2)
       options(shiny.useragg = FALSE)
-      label_gene <- c("S100P","PDIA2","PRB3"," KLK14","SCGB3A2","ZACN") 
+      label_gene <- c("S100P","PDIA2","PRB3","KLK14","SCGB3A2","ZACN") 
       input_value <- reactiveValues(pval=0.05, fdr=0.1,logfc=1,marker=label_gene)
       
       readannot_csv <- reactive({

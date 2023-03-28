@@ -1,4 +1,4 @@
-counterButton2 <- function(id) {
+ui_t_hualiao <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -29,7 +29,7 @@ counterButton2 <- function(id) {
   )
 }
 
-counterServer2 <- function(id) {
+server_t_hualiao <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {

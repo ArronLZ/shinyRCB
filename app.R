@@ -37,7 +37,7 @@ ui <- dashboardPage(
       ),
       # First tab content
       tabItem(tabName = "t_diff",
-              uiOutput(outputId = "ui")
+              uiOutput(outputId = "ui_t_diff")
       ),
       tabItem(tabName = "t_pathway",
               h2("即将上线")
@@ -47,7 +47,7 @@ ui <- dashboardPage(
       ),
       # Second tab content
       tabItem(tabName = "t_hualiao",
-              uiOutput(outputId = "ui2")
+              uiOutput(outputId = "ui_t_hualiao")
       ),
       tabItem(tabName = "t_help",
               h2("敬请期待")
@@ -57,14 +57,15 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session) {
-  counterServer("counter1")
-  counterServer2("counter2")
-  output$ui <- renderUI({
-    counterButton("counter1")
+  output$ui_t_diff <- renderUI({
+    ui_t_diff("diff")
   })
-  output$ui2 <- renderUI({
-    counterButton2("counter2")
+  server_t_diff("diff")
+  ###
+  output$ui_t_hualiao <- renderUI({
+    ui_t_hualiao("hualiao")
   })
+  server_t_hualiao("hualiao")
 }
 
 #options(shiny.port="0.0.0.0", shiny.port = 9012)
