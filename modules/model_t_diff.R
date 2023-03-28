@@ -93,7 +93,7 @@ counterServer <- function(id) {
         input_value$pval = input$pval %>% as.numeric()
         input_value$fdr = input$fdr %>% as.numeric()
         input_value$logfc = input$logfc %>% as.numeric()
-        input_value$marker = input$marker #%>% str_split(., pattern = ",", simplify = T) %>% .[,1]
+        input_value$marker = input$marker %>% str_split(., pattern = ",", simplify = T) %>% .[1,]
         
         # 火山图
         resdf <- diffan_edger()
