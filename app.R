@@ -8,12 +8,17 @@ suppressMessages(library(edgeR))
 suppressMessages(library(DESeq2))
 suppressMessages(library(limma))
 suppressMessages(library(ggsci))
+suppressMessages(library(survival))
+suppressMessages(library(survivalROC))
+suppressMessages(library(survminer))
 
 source("src/predata_diffanalysis.R")
 source("src/LZ_plot.valcano.R")
+source("src/LZ_plot.surv.R")
 source("modules/model_t_diff.R")
 source("modules/model_t_hualiao.R")
 source("modules/model_t_demo.R")
+source("modules/model_t_surv.R")
 
 ui <- dashboardPage(
   # skin = "black",
@@ -47,7 +52,7 @@ ui <- dashboardPage(
               h2("即将上线")
       ),
       tabItem(tabName = "t_surv",
-              h2("正在维护")
+              uiOutput(outputId = "ui_surv")
       ),
       # Second tab content
       tabItem(tabName = "t_hualiao",
@@ -71,6 +76,11 @@ server <- function(input, output, session) {
     ui_t_diff("diff")
   })
   server_t_diff("diff")
+  # t_surv
+  output$ui_surv <- renderUI({
+    ui_t_surv("surv")
+  })
+  server_t_surv("surv")
   # t_hualiao
   output$ui_hualiao <- renderUI({
     ui_t_hualiao("hualiao")
