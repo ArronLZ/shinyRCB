@@ -41,6 +41,7 @@ server_t_diff <- function(id) {
       options(shiny.maxRequestSize=1000*1024^2)
       options(shiny.useragg = FALSE)
       label_gene <- c("S100P","PDIA2","PRB3","KLK14","SCGB3A2","ZACN") 
+      # S100P,PDIA2,PRB3,KLK14,SCGB3A2,ZACN
       input_value <- reactiveValues(pval=0.05, fdr=0.1,logfc=1,marker=label_gene)
       
       readannot_csv <- reactive({
@@ -101,11 +102,11 @@ server_t_diff <- function(id) {
           dplyr::select(Gene, log2FC, PValue, FDR) %>% 
           dplyr::rename(log2FoldChange=log2FC, padj=FDR) %>% 
           na.omit()
-        output$volcano_plot <- renderPlot(
+        output$volcano_plot <- renderPlot(res = 100,
           DEGplot.volcano(result = df_valcano, logFC = input_value$logfc, 
                           adj_P = input_value$pval, 
                           label_geneset = intersect(input_value$marker, df_valcano$Gene)) %>% 
-            ggplotGrob() %>% cowplot::plot_grid() 
+            print() #ggplotGrob() %>% cowplot::plot_grid() 
         )
         
         # 差异基因
