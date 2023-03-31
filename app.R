@@ -11,6 +11,7 @@ suppressMessages(library(ggsci))
 suppressMessages(library(survival))
 suppressMessages(library(survivalROC))
 suppressMessages(library(survminer))
+suppressMessages(library(waiter))
 
 source("src/predata_diffanalysis.R")
 source("src/LZ_plot.valcano.R")
@@ -36,7 +37,19 @@ ui <- dashboardPage(
   ),
   dashboardBody(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$style(
+       ".notification-center {
+           position: fixed;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           background-color: rgba(128, 128, 128, 0.3);
+           color: darkred;
+           font-weight: bold;
+           font-size: 24px;
+       }"
+      )
     ),
     tabItems(
       tabItem(tabName = "t_demo",

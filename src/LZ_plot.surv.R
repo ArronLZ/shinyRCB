@@ -1,3 +1,16 @@
+shiny.readeset <- function(filename, gene1.col) {
+  # xena的LZST2023数据
+  eset_clin <- fread(filename, data.table = F) # "data/tcga/DataClean_LUAD.tpm&os.csv.gz"
+  # 只保留01A数据
+  rindex <- str_sub(eset_clin[,1], 14, 16) == "01A"
+  eset_clin <- eset_clin[rindex, ]
+  # 根据病人去重
+  eset_clin[, 1] <- str_sub(eset_clin[,1], 1, 12)
+  eset_clin <- eset_clin %>% distinct(., sample_id, .keep_all = T)
+  # log化
+  eset_clin[, gene1.col:ncol(eset_clin)] <- log2(eset_clin[, gene1.col:ncol(eset_clin)] + 1)
+  return(eset_clin)
+}
 
 xena.surv.cut <- function(eset_os.df, tagetGene="SIN3B", method=2) {
   eset_clin_p <- eset_os.df

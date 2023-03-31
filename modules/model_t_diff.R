@@ -91,6 +91,13 @@ server_t_diff <- function(id) {
       })
       
       observeEvent(input$btn, {
+        id <- showNotification('通知', 
+                               tags$div(
+                                       "正在计算中，请勿关闭网页...",
+                                       class = "notification-center"
+                                       ),
+                               duration = NULL, closeButton = FALSE)
+        on.exit(removeNotification(id), add = TRUE)
         input_value$pval = input$pval %>% as.numeric()
         input_value$fdr = input$fdr %>% as.numeric()
         input_value$logfc = input$logfc %>% as.numeric()
