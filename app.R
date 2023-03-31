@@ -87,7 +87,7 @@ login_details <- data.frame(user = c("jun", "rcb", "guest"),
                             pswd = c("litchi123", "xwk123", "xwk"))
 
 login <- box(
-  title = "Login",
+  title = "Welcome to RCB",
   textInput("userName", "Please Enter your UserName:"),
   passwordInput("passwd", "Please Enter your PassWord:"),
   br(),
