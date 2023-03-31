@@ -21,21 +21,20 @@ source("modules/model_t_hualiao.R")
 source("modules/model_t_demo.R")
 source("modules/model_t_surv.R")
 
-ui <- dashboardPage(
-  # skin = "black",
-  dashboardHeader(title = "Refined Cell Biotech SMU"),
-  dashboardSidebar(
+
+header <- dashboardHeader(title = "Refined Cell Biotech SMU")
+sidebar <- dashboardSidebar(
     sidebarMenu(
-      menuItem("操作说明", tabName = "t_demo", icon = icon("th")),
+      menuItem("登录账号", tabName = "t_demo", icon = icon("th")),
       menuItem("差异分析", tabName ="t_diff" , icon = icon("th")),
       menuItem("富集分析", tabName ="t_pathway" , icon = icon("th")),
       menuItem("生存分析", tabName ="t_surv" , icon = icon("th")),#icon("dashboard")
       menuItem("上游分析", tabName ="t0" , icon = icon("th")),
       menuItem("化疗计算", tabName ="t_hualiao" , icon = icon("th")),
-      menuItem("帮助", tabName = "t_help", icon = icon("th"))
+      menuItem("敬请期待", tabName = "t_help", icon = icon("th"))
     )
-  ),
-  dashboardBody(
+  )
+body <- dashboardBody(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$style(
@@ -44,10 +43,15 @@ ui <- dashboardPage(
            top: 50%;
            left: 50%;
            transform: translate(-50%, -50%);
-           background-color: rgba(128, 128, 128, 0.3);
-           color: darkred;
+           background-color: rgba(128, 128, 128, 0.1);
+           color: rgba(70,130,180,1);
            font-weight: bold;
            font-size: 24px;
+           position: fixed;
+           padding: 8px;
+           border-radius: 4px;
+           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+           z-index: 9999;
        }"
       )
     ),
@@ -72,31 +76,89 @@ ui <- dashboardPage(
               uiOutput(outputId = "ui_hualiao")
       ),
       tabItem(tabName = "t_help",
-              h2("敬请期待")
+              h2("敬请期待...")
       )
     )
   )
+ui <- dashboardPage(header, sidebar, body)
+
+##password 
+login_details <- data.frame(user = c("jun", "rcb", "guest"),
+                            pswd = c("litchi123", "xwk123", "xwk"))
+
+login <- box(
+  title = "Login",
+  textInput("userName", "Please Enter your UserName:"),
+  passwordInput("passwd", "Please Enter your PassWord:"),
+  br(),
+  actionButton("Login", "Log in")
 )
 
 server <- function(input, output, session) {
+    # To logout back to login page
+  login.page = paste(
+    isolate(session$clientData$url_protocol),
+    "//",
+    isolate(session$clientData$url_hostname),
+    ":",
+    isolate(session$clientData$url_port),
+    sep = ""
+  )
+  
+  USER <- reactiveValues(Logged = F)
+  observe({
+    if (USER$Logged == FALSE) {
+      if (!is.null(input$Login)) {
+        if (input$Login > 0) {
+          Username <- isolate(input$userName)
+          Password <- isolate(input$passwd)
+          Id.username <- which(login_details$user == Username)
+          Id.password <- which(login_details$pswd == Password)
+          if (length(Id.username) > 0 & length(Id.password) > 0){
+            if (Id.username == Id.password) {
+              USER$Logged <- TRUE
+            }
+          }
+        }
+      }
+    }
+  })
+  
   # t_demo
   output$ui_demo <- renderUI({
-    ui_t_demo("demo")
+    if (USER$Logged == TRUE) {
+      ui_t_demo("demo")
+    } else {
+      dashboardBody(login)
+    }
   })
   server_t_demo("demo")
+
   # t_diff
   output$ui_diff <- renderUI({
+    if (USER$Logged == TRUE) {
     ui_t_diff("diff")
+    } else {
+       h3("请先登录账号")
+    }
   })
   server_t_diff("diff")
   # t_surv
   output$ui_surv <- renderUI({
-    ui_t_surv("surv")
+    if (USER$Logged == TRUE) {
+    ui_t_surv("surv") 
+    } else {
+       h3("请先登录账号")
+    }
   })
   server_t_surv("surv")
   # t_hualiao
   output$ui_hualiao <- renderUI({
-    ui_t_hualiao("hualiao")
+    if (USER$Logged == TRUE) {
+    ui_t_hualiao("hualiao") 
+    } else {
+       h3("请先登录账号")
+    }
   })
   server_t_hualiao("hualiao")
 }
