@@ -13,7 +13,7 @@ ui_t_surv <- function(id) {
                  #fileInput(ns("file_eset"), "Upload Eset File (CSV)", accept = c(".csv"),
                  #         multiple = F, buttonLabel = "Load"),
                  selectInput(ns("surv_dataset"), "DataSet", list.dataset, selected="LUAD"),
-                 textInput(ns("surv_gene"), "Please type Gene name", placeholder = "EGFR"),# separated by commas!!!,BRAF,TP53
+                 textInput(ns("surv_gene"), "Please type Gene name", value = "EGFR", placeholder = "EGFR"),# separated by commas!!!,BRAF,TP53
                  selectInput(ns("surv_method"), "Method", list.select, selected="median"),
                  actionButton(ns("surv_btn"), "Analyze")
              ),
@@ -84,7 +84,7 @@ server_t_surv <- function(id, eset_os=eset_clin) {
                                duration = NULL, closeButton = FALSE)
         on.exit(removeNotification(id), add = TRUE)
         input_value$method = input$surv_method# %>% as.numeric()
-        input_value$gene = input$surv_gene # %>% str_split(., pattern = ",", simplify = T) %>% .[1,]
+        input_value$gene = input$surv_gene #%>% as.character() #%>% str_split(., pattern = ",", simplify = T) %>% .[1,]
         # 生存图
         eset_os.cut <- xena.surv.cut(eset_os.df = loaddataset(), tagetGene=input_value$gene, 
                                     method=input_value$method)
