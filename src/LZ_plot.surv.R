@@ -100,7 +100,7 @@ LZplot.dens <- function(data, col) {
              label = c(paste0("Min:", round(five[1],2)), 
                        paste0("Q1:", round(five[2],2)), 
                        paste0("Median:", round(five[3],2)), 
-                       paste0("Median:", round(five[4],2)), 
+                       paste0("Q3:", round(five[4],2)), 
                        paste0("Max:", round(five[5],2)) ), 
              color = c("black", "black", "red", "black", "black"),
              hjust = 1, vjust = c(-1,-2.5,-4.5,-6,-8)) +
