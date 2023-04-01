@@ -17,9 +17,12 @@ ui_t_surv <- function(id) {
                  selectInput(ns("surv_method"), "Method", list.select, selected="median"),
                  actionButton(ns("surv_btn"), "Analyze")
              ),
-             box(width = 9, height = 1000,
+             box(width = 5, height = 1000,
                  #plotOutput(ns("surv_plot"))
                 plotOutput(ns("surv_plot"))
+             ),
+             box(width = 4, height = 1000,
+                plotOutput(ns("gene_dens"))
              ),
       )  
     )
@@ -88,10 +91,13 @@ server_t_surv <- function(id, eset_os=eset_clin) {
         # 生存图
         eset_os.cut <- xena.surv.cut(eset_os.df = loaddataset(), tagetGene=input_value$gene, 
                                     method=input_value$method)
-        ps <- xena.surv.getPvale(rt = eset_os.cut, num.tran = 365, main.text = input_value$gene)
+        ps <- xena.surv.getPvale(rt = eset_os.cut$eset_clin_p, num.tran = 365, main.text = input_value$gene)
         #
-        output$surv_plot <- renderPlot(width = 600, height=500, res = 100,
+        output$surv_plot <- renderPlot(width = 550, height=500, res = 100,
               ps$pic %>% print() #ggplotGrob() %>% cowplot::plot_grid() 
+        )
+        output$gene_dens <- renderPlot(width = 450, height=400, res = 100,
+              LZplot.dens(eset_os.cut$eset_clin_p, input_value$gene) %>% print() #ggplotGrob() %>% cowplot::plot_grid() 
         )
       })
 
