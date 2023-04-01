@@ -86,7 +86,8 @@ mytheme_prism <- function() {
   list(
     scale_y_continuous(expand = c(0,0)),
     scale_x_continuous(expand = c(0,0)),
-    ggprism::theme_prism()
+    #ggprism::theme_prism()
+    theme_classic()
   )
 }
 LZplot.dens <- function(data, col) {
