@@ -87,7 +87,7 @@ server_t_surv <- function(id, eset_os=eset_clin) {
                                duration = NULL, closeButton = FALSE)
         on.exit(removeNotification(id), add = TRUE)
         input_value$method = input$surv_method# %>% as.numeric()
-        input_value$gene = input$surv_gene #%>% as.character() #%>% str_split(., pattern = ",", simplify = T) %>% .[1,]
+        input_value$gene = toupper(input$surv_gene) #%>% as.character() #%>% str_split(., pattern = ",", simplify = T) %>% .[1,]
         # 生存图
         eset_os.cut <- xena.surv.cut(eset_os.df = loaddataset(), tagetGene=input_value$gene, 
                                     method=input_value$method)
