@@ -14,7 +14,7 @@ ui_t_demo <- function(id) {
                  tableOutput(ns("example_eset")),
                  "2. 样本分组文件格式要求：第一列为样本名称(对应表达文件的样本名)，后续列为分组信息，目前暂仅支持type进行差异分析，请将需要分析的表型信息列设置为type",
                  tableOutput(ns("example_group")),
-                 "3. 基因注释文件格式要求：第一列为gene id(对应表达文件的第一列),第二列为要转换成的目标gene symbol",
+                 "3. 基因注释文件，此项可选项，如表达文件第一列本身已是symbol，则不需要上传此文件，格式要求：第一列为gene id(对应表达文件的第一列),第二列为要转换成的目标gene symbol",
                  tableOutput(ns("example_annot")),
                  "4. 标记基因：请以英文输入法状态下的逗号间隔每个基因",
                  textOutput(ns('example_gene'))

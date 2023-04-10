@@ -34,12 +34,34 @@ Xena.process <- function(df, annot, df.log=T, TPM=FALSE, type='mRNA') {
     df <- apply(df, 2, fpkmToTpm)
   }
   rownames(df)  <- row.index
-  df[1:4,1:3]
+  #df[1:4,1:3]
   # 3. 注释
   df  <- df[intersect(rownames(df), annot[,1]), ]
   rownames(df) <- annot[match(rownames(df), annot[,1]), 2]
 
   # 4. 去重
+  df <- avereps(df)
+  df <- data.frame(df, check.names = F)
+  # 返回结果
+  if (type == 'all') {
+    df  <- df
+  } else if (type == 'mRNA') {
+    df  <- df[rownames(df) %in% annot[annot[,3] == "mRNA", 2], ]
+  } else if (type == 'lncRNA') {
+    df  <- df[rownames(df) %in% annot[annot[,3] == "lncRNA", 2], ]
+  }
+  return(df)
+}
+
+Xena.process.noa <- function(df, df.log=T, type="all") {
+  row.index <- df[,1]
+  if (df.log) {
+    df  <- apply(df[, 2:ncol(df)], 2, function(x) 2^x - 1)
+  } else {
+    df  <- as.matrix(df[, 2:ncol(df)])
+  }
+  rownames(df)  <- row.index
+   # 4. 去重
   df <- avereps(df)
   df <- data.frame(df, check.names = F)
   # 返回结果
@@ -78,7 +100,7 @@ DEG.edgeR <- function(exprset.group, pval=0.05,fdr=0.1, logfc=1) {
   
   # 1.0 count，group
   cat('\n', exprset.group$f_mark, ' ================\n')
-  exprset <- exprset.group$eset
+  exprset <- round(exprset.group$eset)
   pheno <- exprset.group$group
   pheno$type
   

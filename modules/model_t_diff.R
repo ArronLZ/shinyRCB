@@ -6,11 +6,11 @@ ui_t_diff <- function(id) {
     fluidRow(
       column(12,
              box(width = 2, height = 1000,
-                 fileInput(ns("file_eset"), "Upload Eset File (CSV)", accept = c(".csv"),
+                 fileInput(ns("file_eset"), "Eset File (CSV)", accept = c(".csv"),
                            multiple = F, buttonLabel = "Load"),
-                 fileInput(ns("file_group"), "Upload Group File (CSV)", accept = c(".csv"),
+                 fileInput(ns("file_group"), "Group File (CSV)", accept = c(".csv"),
                            multiple = F, buttonLabel = "Load"),
-                 fileInput(ns("file_annot"), "Upload Annot File (CSV)", accept = c(".csv"),
+                 fileInput(ns("file_annot"), "Annot File (CSV) [optional]", accept = c(".csv"),
                            multiple = F, buttonLabel = "Load"),
                  selectInput(ns("pval"), "pvalue", p.range, selected=0.05),
                  selectInput(ns("fdr"), "FDR", p.range, selected=0.1),
@@ -55,7 +55,11 @@ server_t_diff <- function(id) {
       })
       
       diffan_edger <- reactive({
-        eset <- Xena.process(df = readeset_csv(), annot = readannot_csv())
+        if(is.null(input$file_annot)) {
+          eset <- Xena.process.noa(df = readeset_csv())
+        } else {
+          eset <- Xena.process(df = readeset_csv(), annot = readannot_csv())
+        }
         eset.group <- list(eset=eset, group=readgroup_csv(), f_mark="luad.mRNA")
         diffan <- DEG.edgeR(eset.group, pval = 0.05, fdr = 0.1, logfc = 1)
         # save(diffan, file = "diffan.RData", compress = T)
@@ -117,14 +121,18 @@ server_t_diff <- function(id) {
         )
         
         # 差异基因
-        newdeg <- resdf$resdf %>% filter(abs(log2FC) > input_value$logfc & 
-                                           PValue < input_value$pval & 
-                                           FDR < input_value$fdr)
+        newdeg <- reactive({
+          newdeg <- resdf$resdf %>% dplyr::filter(abs(log2FC) > input_value$logfc & 
+                                         PValue < input_value$pval & 
+                                         FDR < input_value$fdr)
+          return(newdeg)
+        })
+        
         output$deg_nrow <- renderText({
           paste0("pval= ",  input_value$pval, "\n",
                  "FDR= ",  input_value$fdr, "\n",
                  "Log2FC= ",  input_value$logfc, "\n",
-                 "DEG numbers: ", nrow(newdeg)
+                 "DEG numbers: ", nrow(newdeg())
           )
         })
         

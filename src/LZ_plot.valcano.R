@@ -12,7 +12,8 @@ DEGplot.volcano <- function(result, logFC = 1.5, adj_P = 0.1, label_geneset = NU
   xlim = max(abs(result$log2FoldChange))
   if(is.null(label_geneset)) {
     p = ggplot(result, aes(x = log2FoldChange, y = -log10(padj)))+
-      geom_point(data = result, aes(x = log2FoldChange, y = -log10(padj), color = Type)) +
+      geom_point(data = result, aes(x = log2FoldChange, y = -log10(padj), 
+                color = Type), size = 1) +
           theme_bw()+
     geom_vline(xintercept = c(-logFC, logFC), lty = 2)+
     geom_hline(yintercept = c(-log10(adj_P)), lty = 2)+
@@ -27,13 +28,14 @@ DEGplot.volcano <- function(result, logFC = 1.5, adj_P = 0.1, label_geneset = NU
   } else {
     p = ggplot(result, aes(x = log2FoldChange, y = -log10(padj)))+
       geom_point(data = result, 
-                 aes(x = log2FoldChange, y = -log10(padj), color = Type), alpha=0.9)+
+                 aes(x = log2FoldChange, y = -log10(padj), color = Type), 
+                 alpha=0.9, size = 1)+
       geom_point(data = result[which(result$Gene %in% label_geneset),],
-                 aes(x = log2FoldChange, y = -log10(padj)),color = "black",size = 4)+
+                 aes(x = log2FoldChange, y = -log10(padj)),color = "black",size = 3.5)+
       geom_point(data = result[which(result$Gene %in% label_geneset),],
-                 aes(x = log2FoldChange, y = -log10(padj)),color = "white",size = 2.5)+
+                 aes(x = log2FoldChange, y = -log10(padj)),color = "white",size = 2)+
       geom_point(data = result[which(result$Gene %in% label_geneset),],
-                 aes(x = log2FoldChange, y = -log10(padj),color = Type),size = 1.5)+
+                 aes(x = log2FoldChange, y = -log10(padj),color = Type), size = 1)+
       geom_text_repel(data = result[which(result$Gene %in% label_geneset),],
                       aes(x = log2FoldChange, y = -log10(padj), label = Gene), 
                       fontface = "bold") + #fontface = "italic"
