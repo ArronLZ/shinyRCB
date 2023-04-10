@@ -13,40 +13,41 @@ shiny.readeset <- function(filename, gene1.col) {
 }
 
 xena.surv.cut <- function(eset_os.df, tagetGene="SIN3B", method=2) {
-  eset_clin_p <- eset_os.df
-  tagetGene.five <- fivenum(eset_clin_p[,tagetGene])
+  df <- eset_os.df
+  tagetGene.five <- fivenum(df[,tagetGene])
   if (method == "mean") {
     # mean
-    cut.p <- mean(eset_clin_p[,tagetGene])
-    eset_clin_p$Group <- as.vector(ifelse(eset_clin_p[,tagetGene] > cut.p, "h.mean","l.mean"))
+    cut.p <- mean(df[,tagetGene])
+    df$Group <- as.vector(ifelse(df[,tagetGene] > cut.p, "h.mean","l.mean"))
   } else if (method == "upper75 vs low25") {
     # upper 75 vs low 25
     cut.p <- tagetGene.five[2]
-    eset_clin_p$Group <- as.vector(ifelse(eset_clin_p[,tagetGene] > cut.p, "high75","low25"))
+    df$Group <- as.vector(ifelse(df[,tagetGene] > cut.p, "high75","low25"))
   } else if (method == "median") {
     # median
     cut.p <- tagetGene.five[3]
-    eset_clin_p$Group <- as.vector(ifelse(eset_clin_p[,tagetGene] > cut.p, "h.median","l.median"))
+    df$Group <- as.vector(ifelse(df[,tagetGene] > cut.p, "h.median","l.median"))
   } else if (method == "upper25 vs low75") {
     # upper 25 vs low 75
     cut.p <- tagetGene.five[4]
-    eset_clin_p$Group <- as.vector(ifelse(eset_clin_p[,tagetGene] > cut.p, "high25","low75"))
+    df$Group <- as.vector(ifelse(df[,tagetGene] > cut.p, "high25","low75"))
   } else if (method == "auto cut point") {
     # cut poion
-    res.cut <- surv_cutpoint(eset_clin_p, #数据集
+    res.cut <- surv_cutpoint(df, #数据集
                              time = "OS.time", #生存状态
                              event = "OS", #生存时间
                              variables = tagetGene) #需要计算的数据列名
     cut.p <- res.cut$cutpoint$cutpoint                         
-    eset_clin_p$Group <- as.vector(ifelse(eset_clin_p[,tagetGene] > cut.p, "h.point","l.point"))
+    df$Group <- as.vector(ifelse(df[,tagetGene] > cut.p, "h.point","l.point"))
   } else if (method == "upper25 vs low25") {
-    eset_clin_p.low25 <- eset_clin_p[eset_clin_p[,tagetGene] <= tagetGene.five[2], ]
-    eset_clin_p.low25$Group <- "low25"
-    eset_clin_p.high25 <- eset_clin_p[eset_clin_p[,tagetGene] > tagetGene.five[4], ]
-    eset_clin_p.high25$Group <- "high25"
-    eset_clin_p <- rbind(eset_clin_p.low25, eset_clin_p.high25) %>% data.frame(check.names = F)
+    cut.p <- c(tagetGene.five[2], tagetGene.five[4])
+    df.low25 <- df[df[,tagetGene] <= cut.p[1], ]
+    df.low25$Group <- "low25"
+    df.high25 <- df[df[,tagetGene] > cut.p[2], ]
+    df.high25$Group <- "high25"
+    df <- rbind(df.low25, df.high25) %>% data.frame(check.names = F)
   }
-  return(list(eset_clin_p=eset_clin_p, cut.p=cut.p, five=tagetGene.five))
+  return(list(eset_clin_p=df, cut.p=cut.p, five=tagetGene.five))
 }
 
 xena.surv.getPvale <- function(rt, num.tran=365, main.text='') {

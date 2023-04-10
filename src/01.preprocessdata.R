@@ -3,10 +3,10 @@
 #        3. 第2-3列为OS, OS.time, 第4-12列为临床信息，若不满12构建空列补足
 #        4. 第13开始为基因表达矩阵，未log化
 # sample_id        OS OS.time Age Gender Stage  T  N  M Hist sample_type batch_num     RAB4B
-# TCGA-2H-A9GF-01A  1     784  67   Male   III T3 N1 M0 ESCA       Tumor  382.51.0  4.332118
-# TCGA-2H-A9GG-01A  1     610  66   Male   III T3 N1 M0 ESCA       Tumor  382.51.0 10.743245
-# TCGA-2H-A9GH-01A  1     951  44   Male    II T1 N1 M0 ESCA       Tumor  382.51.0 11.941258
-# TCGA-2H-A9GI-01A  1     435  68   Male   III T3 N1 M0 ESCA       Tumor  382.51.0  6.266653
+# TCGA-2H-A9GF-01A|1     |784  |67   |Male   |III |T3 |N1 |M0 |ESCA|       |Tumor|  382.51.0|  4.332118|
+# TCGA-2H-A9GG-01A|1     |610  |66   |Male   |III |T3 |N1 |M0 |ESCA|       |Tumor|  382.51.0| 10.743245|
+# TCGA-2H-A9GH-01A|1     |951  |44   |Male   |II  |T1 |N1 |M0 |ESCA|       |Tumor|  382.51.0| 11.941258|
+# TCGA-2H-A9GI-01A|1     |435  |68   |Male   |III |T3 |N1 |M0 |ESCA|       |Tumor|  382.51.0|  6.266653|
 rm(list = ls());gc()
 library(data.table)
 library(tidyverse)
